@@ -1,0 +1,20 @@
+// local ci = read?("env:CI")?.toBoolean() ?? false
+
+terraform {
+  required_providers {
+    upcloud {
+      source = "UpCloudLtd/upcloud"
+      version = "5.26.0"
+    }
+  }
+  cloud {
+    organization = "shatokhin-demo"
+    workspaces {
+      name = "terraform-json"
+    }
+  }
+}
+
+provider {
+  upcloud {}
+}

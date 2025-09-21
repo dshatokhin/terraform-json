@@ -1,0 +1,92 @@
+open module upcloud.server
+
+extends "terraform.pkl"
+
+// import ".../apimachinery/pkg/apis/meta/v1/ObjectMeta.pkl"
+import "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.net@1.2.1#/net.pkl"
+
+class ServerResources {
+  upcloud_server: Mapping<String, UpcloudServer>?
+}
+
+class UpcloudServer {
+  hostname: String
+  zone: String
+  labels: Mapping<String, String>?
+  boot_order: String?
+  cpu: Number?
+  firewall: Boolean?
+  host: Number?
+  hot_resize: Boolean?
+  mem: Number?
+  metadata: Boolean?
+  nic_model: String?
+  plan: String?
+  server_group: String?
+  tags: Mapping<String, String>?
+  timezone: String?
+  title: String?
+  user_data: String?
+  video_model: String?
+  login: Login
+  network_interface: NetworkInterface
+  simple_backup: SimpleBackup
+  storage_devices: StorageDevices
+  template: Template
+}
+
+typealias LoginKeys = String? | *Listing<String>?
+
+class Login {
+  create_password: Boolean?
+  keys: String? | *Listing<String>?
+  password_delivery: String?
+  user: String?
+}
+
+class NetworkInterface {
+  type: String
+  bootable: Boolean?
+  index: Number?
+  ip_address: net.IPAddressString?
+  ip_address_family: String?
+  network: String?
+  source_ip_filtering: Boolean?
+  additional_ip_address: AdditionalIpAddress?
+}
+
+class AdditionalIpAddress {
+  ip_address: net.IPAddressString?
+  ip_address_family: String?
+}
+
+class SimpleBackup {
+  plan: String?
+  time: String?
+}
+
+class StorageDevices {
+  address: String?
+  address_position: String?
+  storage: String?
+  type: String?
+}
+
+class Template {
+  address: String?
+  address_position: String?
+  delete_autoresize_backup: Boolean?
+  encrypt: Boolean?
+  filesystem_autoresize: Boolean?
+  size: Number?
+  storage: String?
+  tier: String?
+  title: String?
+  backup_rule: BackupRule?
+}
+
+class BackupRule {
+  interval: String?
+  retention: Number?
+  time: String?
+}

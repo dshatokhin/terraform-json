@@ -1,0 +1,44 @@
+import "types/terraform.pkl"
+
+local prefix = "hug"
+local backup = true
+
+terraformCode: terraform.TerraformObject = new {
+  resource {
+    upcloud_server {
+      ["\(prefix)_vm"] {
+        hostname = "\(prefix)-server"
+        zone = terraform.variableRef("zone")
+        plan = terraform.variableRef("vm_size")
+
+        metadata = true
+
+        template {
+          storage = "Ubuntu Server 24.04 LTS (Noble Numbat)"
+          size = 25
+
+          when (backup) {
+            backup_rule {
+              interval = "daily"
+              time = "0100"
+              retention = 8
+            }
+          }
+        }
+
+        network_interface {
+          type = "public"
+        }
+
+        labels {
+          ["env"] = "prod"
+        }
+
+        login {
+          user = "myusername"
+          keys = terraform.variableRef("ssh_keys")
+        }
+      }
+    }
+  }
+}

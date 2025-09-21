@@ -1,0 +1,42 @@
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  TFC_OUTPUT: tfc_out
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Task
+        uses: go-task/setup-task@v1
+      - name: Install yq
+        uses: mikefarah/yq@master
+      - name: Install pkl
+        uses: pkl-community/setup-pkl@v0
+        with:
+          pkl-version: 0.29.1
+      - name: Render tf.json
+        run: task ${{ vars.TASK }} output=$TFC_OUTPUT
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      - name: Terraform Init
+        working-directory: ${{ env.TFC_OUTPUT }}
+        run: terraform init
+      - name: Terraform Plan
+        working-directory: ${{ env.TFC_OUTPUT }}
+        run: terraform plan
+      # - name: Terraform Apply
+      #   working-directory: ${{ env.TFC_OUTPUT }}
+      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      #   run: terraform apply -auto-approve

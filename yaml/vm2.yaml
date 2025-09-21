@@ -1,0 +1,39 @@
+//:
+  template: &template
+    storage: "Ubuntu Server 24.04 LTS (Noble Numbat)"
+    size: 25
+    backup_rule:
+      interval: "daily"
+      time: "0100"
+      retention: 8
+
+  user_data: &user_data |
+    #cloud-config
+    write_files:
+      - path: /etc/sysconfig/samba
+        content: |
+          # My new /etc/sysconfig/samba file
+          SMBDOPTIONS="-D"
+
+resource:
+  upcloud_server:
+    example2:
+      hostname: ${var.hostname}-2
+      zone: ${var.zone}
+      plan: ${var.vm_size}
+      metadata: true
+
+      template: *template
+
+      network_interface:
+        type: public
+
+      labels:
+        env: dev
+        production: "false"
+
+      login:
+        user: myusername
+        keys: ${var.ssh_keys}
+
+      user_data: *user_data

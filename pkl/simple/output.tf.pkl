@@ -1,0 +1,7 @@
+terraformOutput {
+  output {
+    public_ip {
+      value = "${upcloud_server.example.network_interface[0].ip_address}"
+    }
+  }
+}

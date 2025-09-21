@@ -1,0 +1,78 @@
+import "types/terraform.pkl"
+
+local prefix = "hug"
+
+local networks = new {
+  public {
+    static_route = false
+    address = "192.169.127.0/29"
+    gateway = "192.169.127.1"
+  }
+  private {
+    static_route = false
+    address = "10.244.0.0/16"
+    gateway = "10.244.0.1"
+  }
+  internal {
+    static_route = false
+    address = "172.20.0.0/24"
+    gateway = "172.20.0.254"
+  }
+}
+
+terraformCode: terraform.TerraformObject = new {
+  data {
+    upcloud_networks {
+      ["all_networks"] {
+        zone = terraform.variableRef("zone")
+      }
+    }
+  }
+
+  // output {
+  //   ["all_networks"] {
+  //     value = module.dataRef("upcloud_networks.all_networks.networks")
+  //   }
+  // }
+
+  resource {
+    upcloud_router {
+      for (_k, _v in networks) {
+        ["\(prefix)_\(_k)_router"] {
+          name = "\(_k)_router"
+          labels {
+            ["env"] = "prod"
+          }
+          when (_v.static_route) {
+            static_route {
+              new {
+                route = "0.0.0.0/0"
+                nexthop = "1.1.1.1"
+                type = "static"
+              }
+            }
+          }
+        }
+      }
+    }
+
+    upcloud_network {
+      for (_k, _v in networks) {
+        ["\(prefix)_\(_k)_network"] {
+          name = "\(_k)_network"
+          zone = "fi-hel1"
+          router = terraform.resourceRef("upcloud_router.\(prefix)_\(_k)_router.id")
+          ip_network {
+            new {
+              address = _v.address
+              dhcp = true
+              dhcp_default_route = false
+              family = "IPv4"
+              gateway = _v.gateway
+            }
+          }
+        }
+      }
+    }
+  }
+}
