@@ -1,0 +1,26 @@
+import "types/terraform.pkl"
+
+local ci = read?("env:CI")?.toBoolean() ?? false
+
+terraformCode: terraform.TerraformObject = new {
+  terraform {
+    required_providers {
+      ["upcloud"] {
+        source = "UpCloudLtd/upcloud"
+        version = "5.26.0"
+      }
+    }
+    when (ci) {
+      cloud {
+        organization = "shatokhin-demo"
+        workspaces {
+          name = "terraform-json"
+        }
+      }
+    }
+  }
+
+  provider {
+    ["upcloud"] {}
+  }
+}

@@ -1,0 +1,58 @@
+import "package://pkg.pkl-lang.org/pkl-pantry/pkl.experimental.net@1.2.1#/net.pkl"
+
+class NetworkResources {
+  upcloud_router: Mapping<String, UpcloudRouter>?
+  upcloud_network: Mapping<String, UpcloudNetwork>?
+}
+
+class NetworkDataResources {
+  upcloud_networks: Mapping<String, DataUpcloudNetworks>?
+}
+
+class DataUpcloudNetworks {
+  filter_name: String?
+  zone: String?
+}
+
+class UpcloudRouter {
+  name: String
+  labels: Mapping<String, String>?
+  static_route: Listing<StaticRoute>?
+}
+
+class StaticRoute {
+  route: net.IPCIDRString
+  nexthop: net.IPAddressString
+  name: String?
+  type: String?
+}
+
+class UpcloudNetwork {
+  name: String
+  zone: String
+  router: String?
+  labels: Mapping<String, String>?
+  ip_network: Listing<IPNetwork>?
+}
+
+class IPNetwork {
+  address: net.IPCIDRString
+  dhcp: Boolean
+  family: String
+  dhcp_default_route: Boolean?
+  dhcp_dns: Listing<net.IPAddressString>?
+  dhcp_routes: Listing<net.IPCIDRString>?
+  dhcp_routes_configuration: DhcpRoutesConfiguration?
+  gateway: net.IPAddressString?
+}
+
+class DhcpRoutesConfiguration {
+  effective_routes_auto_population: Listing<EffectiveRoutesAutoPopulation>?
+}
+
+class EffectiveRoutesAutoPopulation {
+  enabled: Boolean?
+  exclude_by_source: Listing<net.IPCIDRString>?
+  filter_by_destination: Listing<net.IPCIDRString>?
+  filter_by_route_type: Listing<String>?
+}

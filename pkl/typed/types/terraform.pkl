@@ -1,0 +1,54 @@
+abstract module terraform
+
+import "pkl:reflect"
+
+import "network.pkl"
+import "server.pkl"
+
+class Variable {
+  type: String?
+  default: Any?
+  sensitive: Boolean?
+}
+
+class Output {
+  value: String?
+}
+
+class Terraform {
+  required_providers: Mapping<String, Dynamic>?
+  cloud: Any?
+}
+
+class TerraformObject {
+  terraform: Terraform?
+  provider: Mapping<String, Dynamic>?
+  resource: Resources?
+  data: DataResources?
+  variable: Mapping<String, Variable>?
+  output: Mapping<String, Output>?
+}
+
+class Resources {
+  upcloud_server: Mapping<String, server.UpcloudServer>?
+  upcloud_router: Mapping<String, network.UpcloudRouter>?
+  upcloud_network: Mapping<String, network.UpcloudNetwork>?
+}
+
+typealias DataResources = network.NetworkDataResources
+
+const function resourceRef(name: String): String = "${\(name)}"
+const function dataRef(name: String): String = "${data.\(name)}"
+const function outputRef(name: String): String = "${output.\(name)}"
+const function variableRef(name: String): String = "${var.\(name)}"
+
+// terraformCode: TerraformObject
+
+// output {
+//   files {
+//     ["\(reflect.Module(module).name).json"] {
+//       value = terraformCode
+//       renderer = new JsonRenderer {}
+//     }
+//   }
+// }

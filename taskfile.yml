@@ -1,0 +1,62 @@
+version: "3"
+
+tasks:
+  yaml:
+    desc: Renders Terraform JSON files from YAML
+    vars:
+      YAML_DIR: "yaml"
+      YAML_OUTPUT_DIR: '{{.output | default "output/yaml"}}'
+      YAML_OUTPUT_FILE: "main.tf.json"
+    cmds:
+      - mkdir -p "{{.YAML_OUTPUT_DIR}}"
+      - find "{{.YAML_DIR}}" -name "*.yaml" -type f -exec yq eval-all '. as $item ireduce ({ }; . * $item )' --output-format json {} \+ >"{{.YAML_OUTPUT_DIR}}/{{.YAML_OUTPUT_FILE}}"
+      - |
+        if [[ $CI != "true" ]]; then
+          terraform -chdir={{.YAML_OUTPUT_DIR}} init -upgrade > /dev/null
+          terraform -chdir={{.YAML_OUTPUT_DIR}} plan
+        fi
+
+  yaml-variables:
+    desc: Show Terraform Variables
+    vars:
+      YAML_DIR: "yaml"
+      YAML_OUTPUT_DIR: "output/{{.YAML_DIR}}"
+      YAML_OUTPUT_FILE: "main.tf.json"
+    cmds:
+      - find "{{.YAML_DIR}}" -name "*.yaml" -type f -exec yq eval-all '. as $item ireduce ({ }; . * $item )' --output-format json {} \+ >"{{.YAML_OUTPUT_DIR}}/{{.YAML_OUTPUT_FILE}}"
+      - jq '.variable' "{{.YAML_OUTPUT_DIR}}/{{.YAML_OUTPUT_FILE}}"
+
+  pkl:
+    desc: Renders Terraform JSON files from simple PKL
+    vars:
+      PKL_SIMPLE_DIR: "pkl/simple"
+      PKL_SIMPLE_OUTPUT_DIR: '{{.output | default "output/pkl/simple"}}'
+    cmds:
+      - mkdir -p "{{.PKL_SIMPLE_OUTPUT_DIR}}"
+      - pkl eval -m {{.PKL_SIMPLE_OUTPUT_DIR}} {{.PKL_SIMPLE_DIR}}/render.pkl
+      - |
+        if [[ $CI != "true" ]]; then
+          terraform -chdir={{.PKL_SIMPLE_OUTPUT_DIR}} init -upgrade > /dev/null
+          terraform -chdir={{.PKL_SIMPLE_OUTPUT_DIR}} plan
+        fi
+
+  pkl-typed:
+    desc: Renders Terraform JSON files from Typed PKL
+    vars:
+      PKL_TYPED_DIR: "pkl/typed"
+      PKL_TYPED_OUTPUT_DIR: '{{.output | default "output/pkl/typed"}}'
+    cmds:
+      - mkdir -p "{{.PKL_TYPED_DIR}}"
+      - pkl eval -m {{.PKL_TYPED_OUTPUT_DIR}} {{.PKL_TYPED_DIR}}/render.pkl
+      - |
+        if [[ $CI != "true" ]]; then
+          terraform -chdir={{.PKL_TYPED_OUTPUT_DIR}} init -upgrade > /dev/null
+          terraform -chdir={{.PKL_TYPED_OUTPUT_DIR}} plan
+        fi
+
+  gha-set-var:
+    desc: Set Github Actions variable
+    vars:
+      VALUE: '{{.value | default "yaml"}}'
+    cmds:
+      - gh variable set TASK --body {{.VALUE}}

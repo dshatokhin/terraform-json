@@ -1,0 +1,16 @@
+import* "*.tf.pkl" as resources
+
+output {
+  files {
+    for (_key, _value in resources) {
+      ["\(_key.replaceAll(Regex(#"(.pkl)"#), "")).json"] {
+        value =
+          if (_key == "output.tf.pkl")
+            _value.terraformOutput
+          else
+            _value
+        renderer = new JsonRenderer {}
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+import "types/terraform.pkl"
+
+terraformCode: terraform.TerraformObject = new {
+  variable {
+    ["vm_size"] {
+      type = "string"
+      default = "1xCPU-1GB"
+    }
+
+    ["zone"] {
+      type = "string"
+      default = "fi-hel1"
+    }
+
+    ["ssh_keys"] {
+      type = "list"
+      default {
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ6JVku2nRMfbqq0DxgUPlVMNFX3CnvBp6bgHnUy+5pl demo"
+      }
+    }
+  }
+}
